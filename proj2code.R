@@ -169,3 +169,53 @@ plot(wlb_seq, pred_probs,
 
 points(df$work_life_balance_ratio, df$turnover_risk,
        pch = 19, col = rgb(0, 0, 0.6, 0.25))
+
+# ONE-WAY ANOVA: Gender
+df$gender <- factor(df$gender)
+
+# Summary statistics
+aggregate(productivity_index ~ gender, data = df, FUN = mean)
+aggregate(productivity_index ~ gender, data = df, FUN = sd)
+
+# Fit ANOVA
+anova_gender <- aov(productivity_index ~ gender, data = df)
+summary(anova_gender)
+
+# Homogeneity of variance test (Bartlett)
+bartlett.test(productivity_index ~ gender, data = df)
+
+
+# Diagnostic Plots
+par(mfrow = c(1, 2))
+
+# Residuals vs Fitted
+plot(fitted(anova_gender), residuals(anova_gender),
+     pch = 19, col = "#3366CC",
+     xlab = "Fitted Values", 
+     ylab = "Residuals",
+     main = "ANOVA: Residuals vs Fitted")
+abline(h = 0, lty = 2)
+
+# QQ Plot
+qqnorm(residuals(anova_gender),
+       pch = 20, col = "#3366CC",
+       main = "ANOVA: Normal Q-Q Plot")
+qqline(residuals(anova_gender), col = "#003399", lwd = 2)
+
+par(mfrow = c(1, 1))
+
+# Boxplot
+boxplot(productivity_index ~ gender, data = df,
+        col = "#99B2FF",
+        border = "#003399",
+        xlab = "Gender",
+        ylab = "Productivity Index",
+        main = "Productivity Index by Gender")
+
+# Compare ANOVA model with linear regression models (non-nested)
+
+# AIC comparison
+AIC(anova_gender, lin_simple, lin_multi)
+
+# BIC comparison
+BIC(anova_gender, lin_simple, lin_multi)
